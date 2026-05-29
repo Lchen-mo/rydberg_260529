@@ -15,7 +15,7 @@ psi0 = g                 # 初始态
 # =========================
 H = 0.5 * Omega * sigmax()
 
-# 方法一：用 sesolve + store_states（无耗散标准做法）
+#用 sesolve + store_states（无耗散标准做法）
 result = sesolve(H, psi0, times, e_ops=[])
 
 
