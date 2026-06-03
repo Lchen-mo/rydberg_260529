@@ -2,10 +2,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 from matplotlib.colors import hsv_to_rgb
 
-# ============================================================
-# Example wavefunction
-# Replace psi with your own wavefunction
-# ============================================================
 
 N = 3000
 
@@ -22,10 +18,10 @@ r = np.sqrt(X**2 + Y**2)
 
 theta = np.arctan2(Y,X)
 
-psi = (
-    np.exp(-r)*np.exp( 1j*r  )
-)
-
+#psi = (np.exp(-r)*np.exp( 1j*r  ))
+a0 = 1
+#psi = (1 / np.sqrt(np.pi * a0**3)) * np.exp(-r / a0)
+psi = (X+1j*Y)**(1/3)
 # ============================================================
 # Domain Coloring
 # ============================================================
@@ -33,9 +29,6 @@ psi = (
 phase = np.angle(psi)
 amp = np.abs(psi)
 
-# ------------------------------------------------------------
-# Phase -> Hue
-# ------------------------------------------------------------
 
 h = (phase + np.pi) / (2 * np.pi)
 
