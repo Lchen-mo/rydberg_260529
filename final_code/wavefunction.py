@@ -79,7 +79,7 @@ def initialize_wavefunction(
     return psi
 
 # ----------------------------
-# 波函数角向积分到径向
+# 波函数求和到径向
 # ----------------------------
 def radial_density(psi):
     """

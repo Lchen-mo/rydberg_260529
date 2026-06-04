@@ -42,7 +42,7 @@ mu = m / 2
 # ============================================================
 # kinetic operator 动能
 # ============================================================
-
+'''
 def kinetic_operator_sparse():
 
     """
@@ -60,7 +60,7 @@ def kinetic_operator_sparse():
         format='csr'
     )               #二阶导数
 
-    T1D = -(hbar**2)/(2*mu*dr**2) * D2   #一维动能算符
+    T1D = -(hbar**2)/(2*mu*dr**2) * D2 / hbar  #一维动能算符
 
     I = eye(Nr, format='csr')
 
@@ -69,7 +69,7 @@ def kinetic_operator_sparse():
     T2D = kron(T1D, I) + kron(I, T1D)   #二体动能算符
 
     return T2D.tocsr()
-
+'''#表示原子核运动，不需要
 
 # ============================================================
 # total Hamiltonian   （有问题）
@@ -77,9 +77,9 @@ def kinetic_operator_sparse():
 
 def build_total_hamiltonian():
 
-    print("Building kinetic operator...")
+    #print("Building kinetic operator...")
 
-    T2D = kinetic_operator_sparse()
+    #T2D = kinetic_operator_sparse()
 
     dim_space = Nr * Nr
 
@@ -103,13 +103,13 @@ def build_total_hamiltonian():
 
             # spatial kinetic term
 
-            if c1 == c2:
+            #if c1 == c2:
 
-                row_start = c1 * dim_space
-                row_end = (c1 + 1) * dim_space
+            #    row_start = c1 * dim_space
+            #    row_end = (c1 + 1) * dim_space
 
-                H[row_start:row_end,
-                  row_start:row_end] += T2D
+            #    H[row_start:row_end,
+            #      row_start:row_end] += T2D
 
             # potential term
 

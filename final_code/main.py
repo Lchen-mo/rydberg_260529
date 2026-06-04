@@ -5,6 +5,7 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import time
 
+from wave_total import reconstruct_total_wavefunction
 from atom_parameters import params   #物理参数
 
 from wavefunction import (
@@ -21,11 +22,11 @@ from propagator import (
 # user parameters
 # ============================================================
 
-psi_type = 'rr'
+psi_type = 'gg'
 
-dt = 1e-11
+dt = 1e-9
 
-n_steps = 500
+n_steps = 100
 
 save_every = 10
 
@@ -109,6 +110,8 @@ print(f"Propagation time: {t3 - t2:.2f} s")
 # final wavefunction
 # ============================================================
 
+total_history = reconstruct_total_wavefunction(history)
+
 psi_final = history[-1]
 
 # ============================================================
@@ -116,7 +119,7 @@ psi_final = history[-1]
 # ============================================================
 
 idx_rr = internal_states.index('rr')
-'''
+
 rr_population = (
     np.sum(
         np.abs(
@@ -130,12 +133,12 @@ print("Final observables")
 print("================================================\n")
 
 print(f"Final |rr> population = {rr_population:.6e}")
-'''
+
 # ============================================================
 # radial density 表示第一个粒子出现在r1+dr1,同时第二个粒子出现在r2+dr2的概率
 # ============================================================
 
-rho = radial_density(psi_final)*10e-12  #单位转化为平方微米
+rho = radial_density(psi_final)*1e12  #单位转化为平方微米
 
 # ============================================================
 # plot radial density
@@ -172,12 +175,12 @@ plt.show()
 # ============================================================
 # rr channel density
 # ============================================================
-'''
+
 print("\nPlotting rr channel density...\n")
 
 rr_density = np.abs(
     psi_final[:, :, idx_rr]
-)**2*dr*dr
+)**2
 
 plt.figure(figsize=(7,6))
 
@@ -204,7 +207,7 @@ plt.colorbar(label=r"$| \psi_{rr} |^2$")
 plt.tight_layout()
 
 plt.show()
-'''
+
 # ============================================================
 # norm check
 # ============================================================
