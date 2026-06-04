@@ -12,70 +12,75 @@ r_grid = params['r_grid']     # 径向网格
 internal_states = params['internal_states']
 n_channels = params['n_channels']
 
-# ----------------------------
-# Rydberg-Rydberg相互作用势
-# ----------------------------
-def V_rr(r):
-    """双激发态 van der Waals 势"""
-    r_safe = np.where(r < 1e-9, 1e-9, r)
-    return C6 / r_safe**6
-
-# ----------------------------
-# 单个r点内部态哈密顿量
-# ----------------------------
-def internal_hamiltonian_r(r):
-    """
-    返回单个r点的多通道内部态哈密顿量 (n_channels x n_channels)
-    通道顺序由 internal_states 决定
-    """
-    H = np.zeros((n_channels, n_channels), dtype=np.complex128)
-
-    # 索引
-    idx_gg = internal_states.index('gg')
-    idx_gr = internal_states.index('gr')
-    idx_rg = internal_states.index('rg')
-    idx_rr = internal_states.index('rr')
-
-    # 激光耦合
-    H[idx_gg, idx_gr] = Omega / 2
-    H[idx_gr, idx_gg] = Omega / 2
-    H[idx_gg, idx_rg] = Omega / 2
-    H[idx_rg, idx_gg] = Omega / 2
-
-    # 单激发 <-> 双激发
-    H[idx_gr, idx_rr] = Omega / 2
-    H[idx_rr, idx_gr] = Omega / 2
-    H[idx_rg, idx_rr] = Omega / 2
-    H[idx_rr, idx_rg] = Omega / 2
-
-    # 激光失谐
-    H[idx_gr, idx_gr] = -Delta
-    H[idx_rg, idx_rg] = -Delta
-
-    # 双激发态加上Rydberg-Rydberg相互作用
-    H[idx_rr, idx_rr] = -2*Delta + V_rr(r)
-
-    return H
+R_atoms=params['R_atoms']
 
 # ----------------------------
 # 径向网格多通道内部态哈密顿量
 # ----------------------------
 def internal_hamiltonian_grid(r_grid):
     """
-    返回shape = (Nr, n_channels, n_channels) 的哈密顿量
+    构造两原子内部态哈密顿量网格 H_internal(r1,r2)
+    shape: (Nr, Nr, n_channels, n_channels)
     """
     Nr = len(r_grid)
-    H_grid = np.zeros((Nr, n_channels, n_channels), dtype=np.complex128)
-    for i, r in enumerate(r_grid):
-        H_grid[i] = internal_hamiltonian_r(r)
+    H_grid = np.zeros((Nr, Nr, n_channels, n_channels), dtype=np.complex128)
+
+    # --------------------------------------------------------
+    # 坐标网格
+    # --------------------------------------------------------
+    #R1, R2 = np.meshgrid(r_grid, r_grid, indexing='ij')
+
+    # --------------------------------------------------------
+    # 两体相对距离，避免零点奇异
+    # --------------------------------------------------------
+    #r12 = np.abs(R1 - R2)
+    #r12[r12 < 1e-9] = 1e-9
+
+    # --------------------------------------------------------
+    # Rydberg-Rydberg相互作用
+    # --------------------------------------------------------
+    Vrr = C6 / (R_atoms**6)
+
+    # --------------------------------------------------------
+    # 填充内部态哈密顿量
+    # --------------------------------------------------------
+    idx_gg = internal_states.index('gg')
+    idx_gr = internal_states.index('gr')
+    idx_rg = internal_states.index('rg')
+    idx_rr = internal_states.index('rr')
+
+    for i in range(Nr):
+        for j in range(Nr):
+            Hloc = np.zeros((n_channels, n_channels), dtype=np.complex128)
+
+            # 激光耦合
+            Hloc[idx_gg, idx_gr] = Omega / 2
+            Hloc[idx_gr, idx_gg] = Omega / 2
+            Hloc[idx_gg, idx_rg] = Omega / 2
+            Hloc[idx_rg, idx_gg] = Omega / 2
+
+            Hloc[idx_gr, idx_rr] = Omega / 2
+            Hloc[idx_rr, idx_gr] = Omega / 2
+            Hloc[idx_rg, idx_rr] = Omega / 2
+            Hloc[idx_rr, idx_rg] = Omega / 2
+
+            # 激光失谐
+            Hloc[idx_gr, idx_gr] = -Delta
+            Hloc[idx_rg, idx_rg] = -Delta
+
+            # 双激发态加上Rydberg-Rydberg相互作用
+            Hloc[idx_rr, idx_rr] = -2*Delta + Vrr
+
+            H_grid[i,j] = Hloc
+
     return H_grid
 
 # ----------------------------
 # 使用示例
 # ----------------------------
 if __name__ == "__main__":
-    H0 = internal_hamiltonian_r(1e-6)  # r = 1 μm
-    print("单个r点内部态哈密顿量 |rr> 态能量:", H0[-1,-1])
-
+    # 打印单个点内部态哈密顿量
+    Nr_mid = len(r_grid) // 2
     H_grid = internal_hamiltonian_grid(r_grid)
-    print("径向哈密顿量网格形状:", H_grid.shape)
+    print("径向网格形状:", H_grid.shape)
+    print("中间点 |rr> 态能量:", H_grid[Nr_mid, Nr_mid, -1, -1])

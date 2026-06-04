@@ -1,3 +1,4 @@
+#atom_parameters.py
 import numpy as np
 from arc import Rubidium87
 
@@ -9,6 +10,13 @@ hbar = 1.0545718e-34
 c = 2.99792458e8
 epsilon0 = 8.854187817e-12
 amu = 1.66053906660e-27
+
+# 原子位置
+r1_0 = 1e-6      # atom1 初始位置
+r2_0 = 1e-6      # atom2 初始位置
+R_atoms=1.5e-6     # 原子间距离
+
+sigma = 0.2e-6    # 波包宽度
 
 # ----------------------------
 # Rb-87
@@ -58,10 +66,10 @@ R_blockade = (C6 / (Omega/(2*np.pi)))**(1/6)
 # 网格
 # ----------------------------
 
-r_min = 0.1e-6
-r_max = 10e-6
+r_min = 1e-7
+r_max = 1e-5
 
-Nr = 50
+Nr = 100
 
 r_grid = np.linspace(r_min, r_max, Nr)
 
@@ -88,6 +96,13 @@ params = {
 
     'hbar': hbar,
     'mRb': mRb,
+
+    'r1_0': r1_0,
+    'r2_0': r2_0,
+
+    'R_atoms': R_atoms,
+
+    'sigma': sigma,
 
     'rydberg_n': rydberg_n,
     'rydberg_l': rydberg_l,

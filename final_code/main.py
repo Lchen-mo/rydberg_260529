@@ -21,13 +21,13 @@ from propagator import (
 # user parameters
 # ============================================================
 
-psi_type = 'superposition'
+psi_type = 'rr'
 
-dt = 1e-15
+dt = 1e-11
 
-n_steps = 100
+n_steps = 500
 
-save_every = 5
+save_every = 10
 
 perturb = 0.0
 
@@ -39,12 +39,13 @@ r_grid = params['r_grid']
 
 dr = params['dr']
 
+r1_0=params['r1_0']
+r2_0=params['r2_0']
+sigma=params['sigma']
+
 Nr = len(r_grid)
-
 n_channels = params['n_channels']
-
 internal_states = params['internal_states']
-
 # ============================================================
 # initialize wavefunction
 # ============================================================
@@ -55,7 +56,10 @@ print("================================================\n")
 
 psi0 = initialize_wavefunction(
     psi_type=psi_type,
-    perturb=perturb
+    perturb=perturb,
+    r1_0=r1_0,
+    r2_0=r2_0,
+    sigma=sigma
 )
 
 print("Initial wavefunction shape:")
@@ -128,10 +132,10 @@ print("================================================\n")
 print(f"Final |rr> population = {rr_population:.6e}")
 '''
 # ============================================================
-# radial density
+# radial density 表示第一个粒子出现在r1+dr1,同时第二个粒子出现在r2+dr2的概率
 # ============================================================
 
-rho = radial_density(psi_final)*dr*dr
+rho = radial_density(psi_final)*10e-12  #单位转化为平方微米
 
 # ============================================================
 # plot radial density
@@ -145,10 +149,10 @@ plt.imshow(
     rho.T,
     origin='lower',
     extent=[
-        r_grid[0]*1e6,
+        r_grid[0]*1e6,     #转微米
         r_grid[-1]*1e6,
         r_grid[0]*1e6,
-        r_grid[-1]*1e6  #转微米
+        r_grid[-1]*1e6  
     ],
     aspect='auto'
 )
@@ -159,7 +163,7 @@ plt.ylabel(r"$r_2$ [$\mu$m]")
 
 plt.title("Radial Probability Density")
 
-plt.colorbar(label="Probability Density")
+plt.colorbar(label=r"Probability Density/[$\mu m^2$]")
 
 plt.tight_layout()
 
@@ -168,7 +172,7 @@ plt.show()
 # ============================================================
 # rr channel density
 # ============================================================
-
+'''
 print("\nPlotting rr channel density...\n")
 
 rr_density = np.abs(
@@ -200,7 +204,7 @@ plt.colorbar(label=r"$| \psi_{rr} |^2$")
 plt.tight_layout()
 
 plt.show()
-
+'''
 # ============================================================
 # norm check
 # ============================================================

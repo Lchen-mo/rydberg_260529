@@ -1,4 +1,5 @@
-# propagator.py
+#总哈密顿量 + 薛定谔方程求解
+#propagator.py
 
 import numpy as np
 
@@ -36,8 +37,10 @@ n_channels = params['n_channels']
 mu = m / 2
 
 
+
+
 # ============================================================
-# kinetic operator
+# kinetic operator 动能
 # ============================================================
 
 def kinetic_operator_sparse():
@@ -69,14 +72,10 @@ def kinetic_operator_sparse():
 
 
 # ============================================================
-# total Hamiltonian
+# total Hamiltonian   （有问题）
 # ============================================================
 
 def build_total_hamiltonian():
-
-    """
-    construct sparse total Hamiltonian
-    """
 
     print("Building kinetic operator...")
 
@@ -84,7 +83,7 @@ def build_total_hamiltonian():
 
     dim_space = Nr * Nr
 
-    dim_total = dim_space * n_channels
+    dim_total = dim_space * n_channels  #总维度
 
     H = csr_matrix((dim_total, dim_total), dtype=np.complex128)
 
@@ -114,16 +113,15 @@ def build_total_hamiltonian():
 
             # potential term
 
-            V_diag = np.repeat(
-                H_internal[:, c1, c2],
-                Nr
-            )
+            V_diag =  H_internal[:,:, c1, c2].flatten()   
+
+            
 
             V_sparse = diags(
                 V_diag,
                 0,
                 format='csr'
-            )
+            )           #稀疏矩阵转化
 
             row_start = c1 * dim_space
             row_end = (c1 + 1) * dim_space
@@ -133,12 +131,14 @@ def build_total_hamiltonian():
 
             H[row_start:row_end,
               col_start:col_end] += V_sparse
-    H=H*10e-5
+   # H*=1e-5
     return H.tocsr()
 
 
+
+
 # ============================================================
-# propagation
+# propagation  求解
 # ============================================================
 
 def propagate(
