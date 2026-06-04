@@ -50,20 +50,20 @@ def kinetic_operator_sparse():
 
     off_diag = np.ones(Nr - 1)
 
-    D2 = diags(
+    D2 = diags(         
         [off_diag, main_diag, off_diag],
         [-1, 0, 1],
         shape=(Nr, Nr),
         format='csr'
-    )
+    )               #二阶导数
 
-    T1D = -(hbar**2)/(2*mu*dr**2) * D2
+    T1D = -(hbar**2)/(2*mu*dr**2) * D2   #一维动能算符
 
     I = eye(Nr, format='csr')
 
     # T(r1,r2)
 
-    T2D = kron(T1D, I) + kron(I, T1D)
+    T2D = kron(T1D, I) + kron(I, T1D)   #二体动能算符
 
     return T2D.tocsr()
 
@@ -141,9 +141,6 @@ def build_total_hamiltonian():
 # propagation
 # ============================================================
 
-# ============================================================
-# propagation
-# ============================================================
 def propagate(
     psi0,
     H,
@@ -151,9 +148,7 @@ def propagate(
     n_steps,
     save_every=1
 ):
-    """
-    修复版：保范、无溢出、维度匹配、无NaN
-    """
+
     # ✅ 修复1：严格按照哈密顿量的块结构展平（通道优先）
     psi = np.moveaxis(psi0, -1, 0).flatten()  # 核心：(4,20,20)展平，匹配H的分块
     history = []
@@ -164,9 +159,9 @@ def propagate(
         # ✅ 修复2：删除多余的 /hbar！（你的哈密顿量已约化ħ）
         # ✅ 修复3：用expm_multiply保范传播，永不溢出
         psi = expm_multiply(
-            -1j * H * dt,  # 关键：删掉 /hbar！
+            -1j * H * dt,   
             psi
-        )
+        )                 # 解哈密顿方程
 
         if step % save_every == 0:
             # 重塑回原始形状

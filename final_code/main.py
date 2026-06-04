@@ -5,25 +5,25 @@ import matplotlib.pyplot as plt
 from tqdm import tqdm
 import time
 
-from atom_parameters import params
+from atom_parameters import params   #物理参数
 
 from wavefunction import (
     initialize_wavefunction,
     radial_density
-)
+)                                    #波函数
 
 from propagator import (
     build_total_hamiltonian,
     propagate
-)
+)                                    #哈密顿量和传播
 
 # ============================================================
 # user parameters
 # ============================================================
 
-psi_type = 'rr'
+psi_type = 'superposition'
 
-dt = 1e-10
+dt = 1e-15
 
 n_steps = 100
 
@@ -112,7 +112,7 @@ psi_final = history[-1]
 # ============================================================
 
 idx_rr = internal_states.index('rr')
-
+'''
 rr_population = (
     np.sum(
         np.abs(
@@ -126,12 +126,12 @@ print("Final observables")
 print("================================================\n")
 
 print(f"Final |rr> population = {rr_population:.6e}")
-
+'''
 # ============================================================
 # radial density
 # ============================================================
 
-rho = radial_density(psi_final)
+rho = radial_density(psi_final)*dr*dr
 
 # ============================================================
 # plot radial density
@@ -148,7 +148,7 @@ plt.imshow(
         r_grid[0]*1e6,
         r_grid[-1]*1e6,
         r_grid[0]*1e6,
-        r_grid[-1]*1e6
+        r_grid[-1]*1e6  #转微米
     ],
     aspect='auto'
 )
@@ -173,7 +173,7 @@ print("\nPlotting rr channel density...\n")
 
 rr_density = np.abs(
     psi_final[:, :, idx_rr]
-)**2
+)**2*dr*dr
 
 plt.figure(figsize=(7,6))
 

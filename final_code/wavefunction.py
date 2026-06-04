@@ -9,7 +9,15 @@ n_channels = params['n_channels']
 # ----------------------------
 # 初始化径向多通道波函数
 # ----------------------------
-def initialize_wavefunction(psi_type='gg', perturb=0.0):
+def initialize_wavefunction(
+        psi_type='gg', 
+        perturb=0.0 ,
+        r1_0=None,
+        r2_0=None,
+        sigma=None
+        
+        
+        ):
     """
     初始化径向多通道波函数 psi(r1,r2)
     
@@ -19,14 +27,52 @@ def initialize_wavefunction(psi_type='gg', perturb=0.0):
         'superposition' - 均匀叠加态
     perturb: 随机扰动幅度，用于测试动力学
     """
+    if r1_0 is None:
+        r1_0 = params['R_blockade'] * 0.7
+    if r2_0 is None:
+        r2_0 = params['R_blockade'] * 1.3
+
+
+    if sigma is None:
+        sigma = params['R_blockade'] * 0.1
+
+
     psi = np.zeros((Nr, Nr, n_channels), dtype=np.complex128)
 
+# --------------------------------------------------------
+    # Gaussian packet
+    # --------------------------------------------------------
+
+    R1, R2 = np.meshgrid(
+        r_grid,
+        r_grid,
+        indexing='ij'
+    )
+
+    phi1 = np.exp(
+        -(R1-r1_0)**2 / (2*sigma**2)
+    )
+
+    phi2 = np.exp(
+        -(R2-r2_0)**2 / (2*sigma**2)
+    )
+
+    gaussian_packet = phi1 * phi2
+
+    # --------------------------------------------------------
+    # internal state
+    # --------------------------------------------------------
+
+
     if psi_type == 'gg':
-        psi[:,:,0] = 1.0  # |gg>通道
+        psi[:,:,0] = gaussian_packet  # |gg>通道
     elif psi_type == 'rr':
-        psi[:,:,-1] = 1.0  # |rr>通道
+        psi[:,:,-1] = gaussian_packet  # |rr>通道
     elif psi_type == 'superposition':
-        psi[:,:,:] = 1.0/np.sqrt(n_channels)
+        for c in range(n_channels):
+
+            psi[:,:,c] = gaussian_packet / np.sqrt(n_channels)
+
     else:
         raise ValueError("psi_type must be 'gg', 'rr', or 'superposition'")
 
