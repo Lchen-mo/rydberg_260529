@@ -329,7 +329,10 @@ ax.set_ylabel(
 
 plt.tight_layout()
 
-#plt.savefig("conditional_pair_hsv.png",    dpi=300)
+plt.savefig(
+    "conditional_pair_hsv.png",
+    dpi=300
+)
 
 plt.show()
 
